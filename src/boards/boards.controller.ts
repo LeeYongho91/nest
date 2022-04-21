@@ -4,28 +4,21 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { BoardsService } from './boards.service';
-import { Board, BoardStatus } from './board.model';
+import { BoardStatus } from './board-status.enum';
 import { createBoardDto } from './dto/create-board.dto';
 import { BoardStatusValidationPipe } from './pipes/board-status-validation.pipe';
+import { Board } from './board.entity';
 
 @Controller('boards')
 export class BoardsController {
-  constructor(private BoardsService: BoardsService) {}
-
-  /**
-   *
-   * @returns
-   */
-  @Get('/')
-  getAllBoard(): Board[] {
-    return this.BoardsService.getAllBoards();
-  }
+  constructor(private boardsService: BoardsService) {}
 
   /**
    *
@@ -34,8 +27,8 @@ export class BoardsController {
    */
   @Post()
   @UsePipes(ValidationPipe)
-  createBoard(@Body() createBoardDto: createBoardDto): Board {
-    return this.BoardsService.createBoard(createBoardDto);
+  createBoard(@Body() createBoardDto: createBoardDto): Promise<Board> {
+    return this.boardsService.createBoard(createBoardDto);
   }
 
   /**
@@ -44,30 +37,25 @@ export class BoardsController {
    * @returns
    */
   @Get('/:id')
-  getBoardById(@Param('id') id: string): Board {
-    return this.BoardsService.getBoardById(id);
+  getBoardById(@Param('id') id: number): Promise<Board> {
+    return this.boardsService.getBoardById(id);
   }
 
   /**
    *
    * @param id
-   */
-  @Delete('/:id')
-  deleteBoard(@Param('id') id: string): void {
-    this.BoardsService.deleteBoard(id);
-  }
-
-  /**
-   *
-   * @param id
-   * @param status
    * @returns
    */
+  @Delete('/:id')
+  deleteBoard(@Param('id', ParseIntPipe) id): Promise<void> {
+    return this.boardsService.deleteBoard(id);
+  }
+
   @Patch('/:id/status')
   updateBoardStatus(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body('status', BoardStatusValidationPipe) status: BoardStatus,
-  ): Board {
-    return this.BoardsService.updateBoardStatus(id, status);
+  ) {
+    return this.boardsService.updateBoardStatus(id, status);
   }
 }

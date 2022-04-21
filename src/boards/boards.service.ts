@@ -1,31 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Board, BoardStatus } from './board.model';
+import { BoardStatus } from './board-status.enum';
 import { v1 as uuid } from 'uuid';
 import { createBoardDto } from './dto/create-board.dto';
+import { BoardRepository } from './board.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Board } from './board.entity';
 
 @Injectable()
 export class BoardsService {
-  private boards: Board[] = [];
-
-  getAllBoards(): Board[] {
-    return this.boards;
-  }
-
+  constructor(
+    @InjectRepository(BoardRepository)
+    private boardRepository: BoardRepository,
+  ) {}
+  // getAllBoards(): Board[] {
+  //   return this.boards;
+  // }
   /**
    *
    * @param createBoardDto
    * @returns
    */
-  createBoard(createBoardDto: createBoardDto) {
-    const { title, description } = createBoardDto;
-    const board: Board = {
-      id: uuid(),
-      title,
-      description,
-      status: BoardStatus.PUBLIC,
-    };
-    this.boards.push(board);
-    return board;
+  async createBoard(createBoardDto: createBoardDto): Promise<Board> {
+    return this.boardRepository.createBoard(createBoardDto);
   }
 
   /**
@@ -33,11 +29,11 @@ export class BoardsService {
    * @param id
    * @returns
    */
-  getBoardById(id: string): Board {
-    const found = this.boards.find((board) => board.id === id);
+  async getBoardById(id): Promise<Board> {
+    const found = await this.boardRepository.findOne(id);
 
     if (!found) {
-      throw new NotFoundException(`Can't find Board with id ${id}`);
+      throw new NotFoundException(`Can't find board with ${id}`);
     }
 
     return found;
@@ -46,10 +42,10 @@ export class BoardsService {
   /**
    *
    * @param id
+   * @returns
    */
-  deleteBoard(id: string): void {
-    const found = this.getBoardById(id);
-    this.boards = this.boards.filter((board) => board.id !== found.id);
+  deleteBoard(id: number): Promise<void> {
+    return this.boardRepository.deleteBoard(id);
   }
 
   /**
@@ -58,9 +54,27 @@ export class BoardsService {
    * @param status
    * @returns
    */
-  updateBoardStatus(id: string, status: BoardStatus): Board {
-    const board = this.getBoardById(id);
-    board.status = status;
-    return board;
+  updateBoardStatus(id: number, status: BoardStatus): Promise<Board> {
+    return this.boardRepository.updateBoardStatus(id, status);
   }
+
+  // /**
+  //  *
+  //  * @param id
+  //  */
+  // deleteBoard(id: string): void {
+  //   const found = this.getBoardById(id);
+  //   this.boards = this.boards.filter((board) => board.id !== found.id);
+  // }
+  // /**
+  //  *
+  //  * @param id
+  //  * @param status
+  //  * @returns
+  //  */
+  // updateBoardStatus(id: string, status: BoardStatus): Board {
+  //   const board = this.getBoardById(id);
+  //   board.status = status;
+  //   return board;
+  // }
 }
