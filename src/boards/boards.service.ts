@@ -12,9 +12,7 @@ export class BoardsService {
     @InjectRepository(BoardRepository)
     private boardRepository: BoardRepository,
   ) {}
-  // getAllBoards(): Board[] {
-  //   return this.boards;
-  // }
+
   /**
    *
    * @param createBoardDto
@@ -58,23 +56,11 @@ export class BoardsService {
     return this.boardRepository.updateBoardStatus(id, status);
   }
 
-  // /**
-  //  *
-  //  * @param id
-  //  */
-  // deleteBoard(id: string): void {
-  //   const found = this.getBoardById(id);
-  //   this.boards = this.boards.filter((board) => board.id !== found.id);
-  // }
-  // /**
-  //  *
-  //  * @param id
-  //  * @param status
-  //  * @returns
-  //  */
-  // updateBoardStatus(id: string, status: BoardStatus): Board {
-  //   const board = this.getBoardById(id);
-  //   board.status = status;
-  //   return board;
-  // }
+  /**
+   *
+   * @returns
+   */
+  getAllBoards(): Promise<Board[]> {
+    return this.boardRepository.find();
+  }
 }

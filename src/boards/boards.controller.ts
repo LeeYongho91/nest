@@ -51,11 +51,26 @@ export class BoardsController {
     return this.boardsService.deleteBoard(id);
   }
 
+  /**
+   *
+   * @param id
+   * @param status
+   * @returns
+   */
   @Patch('/:id/status')
   updateBoardStatus(
     @Param('id') id: number,
     @Body('status', BoardStatusValidationPipe) status: BoardStatus,
   ) {
     return this.boardsService.updateBoardStatus(id, status);
+  }
+
+  /**
+   *
+   * @returns
+   */
+  @Get()
+  getAllTask(): Promise<Board[]> {
+    return this.boardsService.getAllBoards();
   }
 }
