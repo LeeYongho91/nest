@@ -19,11 +19,15 @@ import { Board } from './board.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from '../auth/user.entity';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('boards')
 @UseGuards(AuthGuard())
 export class BoardsController {
-  constructor(private boardsService: BoardsService) {}
+  constructor(
+    private boardsService: BoardsService,
+    private authService: AuthService,
+  ) {}
 
   /**
    *
@@ -82,6 +86,8 @@ export class BoardsController {
    */
   @Get()
   getAllTask(@GetUser() user: User): Promise<Board[]> {
+    const test = this.authService.test();
+    console.log(test);
     return this.boardsService.getAllBoards(user);
   }
 }

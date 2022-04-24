@@ -42,4 +42,8 @@ export class AuthService {
       throw new UnauthorizedException('login failed');
     }
   }
+
+  test() {
+    return 'test';
+  }
 }
