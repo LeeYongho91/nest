@@ -3,6 +3,7 @@ import { Board } from './board.entity';
 import { BoardStatus } from './board-status.enum';
 import { createBoardDto } from './dto/create-board.dto';
 import { NotFoundException } from '@nestjs/common';
+import { User } from '../auth/user.entity';
 
 @EntityRepository(Board)
 export class BoardRepository extends Repository<Board> {
@@ -11,13 +12,17 @@ export class BoardRepository extends Repository<Board> {
    * @param createBoardDto
    * @returns
    */
-  async createBoard(createBoardDto: createBoardDto): Promise<Board> {
+  async createBoard(
+    createBoardDto: createBoardDto,
+    user: User,
+  ): Promise<Board> {
     const { title, description } = createBoardDto;
 
     const board = this.create({
       title,
       description,
       status: BoardStatus.PUBLIC,
+      user,
     });
 
     await this.save(board);
@@ -28,14 +33,12 @@ export class BoardRepository extends Repository<Board> {
    *
    * @param id
    */
-  async deleteBoard(id: number): Promise<void> {
-    const result = await this.delete(id);
+  async deleteBoard(id: number, user: User): Promise<void> {
+    const result = await this.delete({ id, user });
 
     if (result.affected === 0) {
       throw new NotFoundException(`Can't find board with id ${id}`);
     }
-
-    console.log(`result ${result}`);
   }
 
   /**
